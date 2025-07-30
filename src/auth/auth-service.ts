@@ -4,12 +4,11 @@ import jwt from 'jsonwebtoken';
 import { CreateUserDto } from './dtos/CreateUser.dto';
 import RefreshTokenModel from './models/RefreshToken';
 import UserModel, { IUser } from './models/User';
-
-dotenv.config();
+import { config } from '../config/config';
 
 class AuthService {
-  private readonly jwtSecret = process.env.JWT_SECRET!;
-  private readonly jwtRefreshSecret = process.env.JWT_REFRESH_SECRET!;
+  private readonly jwtSecret = config.JWT_SECRET!;
+  private readonly jwtRefreshSecret = config.JWT_REFRESH_SECRET!;
 
   async registerUser(createUserDto: CreateUserDto): Promise<IUser> {
     const { email, password, username,city } = createUserDto;

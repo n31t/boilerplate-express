@@ -1,15 +1,26 @@
 import 'dotenv/config';
 import express from 'express';
-import connectDB from './db';
+// import connectDB from './db';
 import globalRouter from './global-router';
-import { logger } from './logger';
+import { correlationMiddleware, logger, requestLogger } from './observability/logger';
+import { log } from './observability/logger';
+import { config } from './config/config';
+import redisConnection from './config/redis';
+import cors from 'cors';
+const app = express();;
 
-const app = express();
-const PORT = process.env.PORT || 3000;
+app.use(
+  cors({
+    origin: "*",
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: "*",
+    exposedHeaders: "*",
+    credentials: true,
+  })
+);
 
-connectDB();
-
-app.use(logger);
+app.use(correlationMiddleware);
+app.use(requestLogger);
 app.use(express.json());
 app.use('/api/v1/',globalRouter);
 
@@ -18,6 +29,6 @@ app.get('/',(request,response) =>{
   response.send("Hello World!");
 })
 
-app.listen(PORT, () => {
-  console.log(`Server runs at http://localhost:${PORT}`);
+app.listen(config.PORT, () => {
+  log.info(`Server runs at http://localhost:${config.PORT}`,);
 });
